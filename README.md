@@ -9,14 +9,27 @@ The community channel is available here: http://slack.midonet.org/ .
 
 Contributing
 ============
-You can contribute to these charms by opening a pull request to this repository.
-Also please note that this repository might start to use gerrithub at any time, you will not be able to send pull requests directly to this project again (well, you will, but they will not be noticed).
+You can report a bug using [MidoNet Issue tracking][jira].
 
-We will change this README.md once we have decided to go to gerrithub with the project.
-Thanks for your understanding and sorry about any inconveniences that may occur for you then.
+All patches to midonet-charms are submitted to Gerrit, an open source,
+web-based code review system. It's publicly hosted on [GerritHub][gerrithub].
 
-Please note that before you PR or commit anything, your charm must be tested by you with a full OpenStack installation performed by you alone, testing the following:
+To submit a patch, you'll need to sign into GerritHub using your GitHub
+account and set up your ssh-key in `Settings->SSH public keys`. If you
+need information to set up git review, or git-review workflows, please
+check MidoNet Developer's Guide in the [wiki][dev-guide].
 
+Submitting a review is simple, typically:
+
+    git clone https://github.com/midonet/midonet-charms
+    git checkout -b your_branch origin/master
+    # .. make some changes ..
+    git commit -as  # commit your changes, and sign off your commit
+    git review master
+
+Your review will now appear on [GerritHub][gerrithub]. Patches must be verified
+in order to be merged. Verification must be done by the submitter and involves
+the following:
 - installing OpenStack Juno on Ubuntu 14.04 with the latest MidoNet OSS version
 - testing creation of at least one VM
 - ping the internet without associating a floating IP to the VM
@@ -25,7 +38,22 @@ Please note that before you PR or commit anything, your charm must be tested by 
 - associate a floating IP and ping from outside, log into the VM, do a wget to www.midokura.com and any other website
 - use iperf to test connectivity to the VM and from the VM to an outside host
 
-As soon as your PR gets through we will then QA the changed code on all our supported MEM releases that can be installed with the MidoNet Juju Charm.
+After committers approve your change, it will get merged into the main
+repository. Then, in the next release of the charm, it will be available in the
+juju charms store.
+
+Feel free to join other MidoNet charms developers at #juju-charms on
+[midonet-slack] we will be happy to help you get set up.
+
+[jira]: http://midonet.atlassian.net
+    "MidoNet Issue tracking"
+[gerrithub]: https://review.gerrithub.io/#/q/project:midonet/midonet-charms
+    "GerritHub"
+[dev-guide]: http://wiki.midonet.org/Developer%27s%20Guide
+    "MidoNet developers guide"
+[midonet-slack]: https://slack.midonet.org
+    "MidoNet Slack channel"
+
 
 Neutron
 =======
