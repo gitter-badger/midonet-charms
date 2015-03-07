@@ -1,0 +1,14 @@
+name: midonet-repository
+summary: charm for midonet repositories on ubuntu
+maintainer: midokura
+description: |
+   This charm configures the necessary repositories for MidoNet and its
+   dependencies. In order to do that, and for other MidoNet charms, it installs
+   puppet.
+tags:
+  - midonet
+  - networking
+subordinate: true
+provides:
+  mido-repo:
+    interface: midonet-repository

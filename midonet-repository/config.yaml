@@ -1,0 +1,10 @@
+options:
+  midonet_version:
+    type: string
+    default: "2015.01"
+    description: "Which midonet release to install"
+
+  openstack_release:
+    type: string
+    default: "juno"
+    description: "Which OpenStack release is the target"

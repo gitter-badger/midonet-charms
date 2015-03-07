@@ -1,0 +1,96 @@
+#!/bin/bash
+# Copyright (c) 2015 Midokura SARL, All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+function apt_op() {
+    local apt_no_lock=100
+    local max_retries=10
+    local op=$1
+    shift
+    local packages=$@
+    local i=0
+    while [[ $i -lt $max_retries ]]; do
+        DEBIAN_FRONTEND='noninteractive' apt-get $op -y $packages
+        local rc=$?
+        case "$rc" in
+            0)
+                break
+                ;;
+            $apt_no_lock)
+                ((i++))
+                sleep 10  # Wait ten secs to retry
+                ;;
+            *)
+                return $rc
+                ;;
+        esac
+    done
+    if [[ $rc != 0 ]]; then
+        juju-log "Failed to acquire apt lock"
+    fi
+    return $rc
+}
+
+
+apt_op update && apt_op install puppet
+if [[ $? != 0 ]]; then
+    juju-log "Failed to install puppet";
+    exit 1;
+fi
+
+
+(puppet module list | grep "midonet-midonet") || puppet module install midonet-midonet
+if [[ $? != 0 ]]; then
+    juju-log "Failed to install the required puppet module";
+    exit 1;
+fi
+
+DEBIAN_DATA_DIR=/var/lib/hiera/osfamily/Debian
+
+# Configure puppet's hiera.yaml to look at the midonet-midonet defaults
+mkdirt -p /etc/puppet
+echo > /etc/puppet/hiera.yaml << EOF
+:backends:
+  - yaml
+:yaml:
+  :datadirs:
+  - /etc/puppet/hieradata
+  - /etc/puppet/modules/midonet/data
+:hierarchy:
+  - osfamily/%{::osfamily}/%{::lsbmajdistrelease}
+  - osfamily/%{::osfamily}/common
+  - common
+:logger: console
+EOF
+
+if [[ $? != 0 ]]; then
+    juju-log "Failed to write puppet's hiera configuration";
+    exit 1;
+fi
+
+# Prepare the data file for puppet
+mkdirs -p $DEBIAN_DATA_DIR
+echo > $DEBIAN_DATA_DIR << EOF
+midonet::repository::midonet_repo: 'http://repo.midonet.org/midonet/v$(config-get midonet_version)'
+midonet::repository::openstack_release: '$(config-get openstack_release)'
+midonet::repository::midonet_openstack_repo: "http://repo.midonet.org/openstack-$(config-get openstack_release)"
+EOF
+
+if [[ $? != 0 ]]; then
+    juju-log "Failed to override midonet::repository puppet configuration";
+    exit 1;
+fi
+
+puppet apply -d -e "include midonet::repository"
+
+exit $?
