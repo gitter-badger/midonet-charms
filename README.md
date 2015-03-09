@@ -1,6 +1,8 @@
 ミドネット
 ==========
 
+[![Join the chat at https://gitter.im/midonet/midonet-charms](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/midonet/midonet-charms?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This repository contains Ubuntu Juju Charms to install MidoNet, the distributed virtual network controller for building a network overlay solution (NVO) with OpenStack.
 
 For help with these charms you can visit our community slack channel, as a customer of MEM you can also open a support request.
